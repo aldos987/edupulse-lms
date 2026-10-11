@@ -1,0 +1,79 @@
+/* Custom Styles for EduPulse LMS */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbar for terminals and pre tags */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+}
+
+/* Nav Item Active Style */
+.nav-item.active {
+  color: #4f46e5;
+  background-color: #eef2ff;
+}
+.nav-item.active i {
+  color: #4f46e5;
+}
+
+/* Mobile Nav Item Active Style */
+.mobile-nav-item.active {
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+/* Drag & Drop Highlight */
+.dragover {
+  border-color: #6366f1 !important;
+  background-color: #eef2ff !important;
+}
+
+/* Code editor focus ring */
+#codeEditorArea:focus {
+  outline: 1px solid #4f46e5;
+}
+
+/* Badges */
+.badge-late {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+.badge-ontime {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.badge-graded {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+.badge-pending {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
