@@ -192,11 +192,30 @@ router.post('/change-password', authMiddleware, (req, res) => {
   });
 });
 
-// Quick demo switch (Disabled for student data security)
+// Quick demo switch
 router.post('/quick-login', (req, res) => {
-  return res.status(403).json({ 
-    success: false, 
-    message: 'Fitur pindah akun tanpa sandi telah dinonaktifkan demi keamanan dan privasi data siswa.' 
+  const { username, nisn } = req.body;
+  const target = (username || nisn || '').trim();
+
+  const user = db.prepare('SELECT * FROM users WHERE username = ? OR nisn_nip = ?').get(target, target);
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'Pengguna demo tidak ditemukan.' });
+  }
+
+  const token = generateToken(user);
+  res.cookie('auth_token', token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
+
+  const { password_hash, ...userProfile } = user;
+  res.json({
+    success: true,
+    message: `Beralih ke akun ${user.full_name} (${user.role.toUpperCase()} - ${user.class_name})`,
+    token,
+    user: userProfile
   });
 });
 
