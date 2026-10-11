@@ -29,6 +29,13 @@ const api = {
   async getMe() {
     return this.request('/api/auth/me');
   },
+  async updateProfile(full_name, nisn_nip) {
+    return this.request('/api/auth/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ full_name, nisn_nip })
+    });
+  },
   async login(identifier, password) {
     return this.request('/api/auth/login', {
       method: 'POST',

@@ -167,6 +167,16 @@ function initDatabase() {
 }
 
 function seedInitialData() {
+  // Always ensure official teacher name and NIY are updated on every startup
+  try {
+    db.prepare(`
+      UPDATE users 
+      SET full_name = 'Aldo Sapriansyah, S.Kom., Gr.', 
+          nisn_nip = 'NIY.Y223188'
+      WHERE role = 'guru'
+    `).run();
+  } catch (e) {}
+
   // Check if we need to seed or re-seed (ensure MULOK_INFOR is present)
   let mulokExists = 0;
   try {
@@ -208,7 +218,7 @@ function seedInitialData() {
     teacherHash,
     'Aldo Sapriansyah, S.Kom., Gr.',
     'guru',
-   'NIY.Y223188',
+    'NIY.Y223188',
     'GURU',
     'Guru Mapel Informatika, KKA & Mulok',
     0,

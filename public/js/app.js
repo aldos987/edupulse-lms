@@ -123,6 +123,27 @@ function setupEventListeners() {
     });
   }
 
+  // 2b. Teacher Profile Form Submission
+  const etpForm = document.getElementById('editTeacherProfileForm');
+  if (etpForm) {
+    etpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('teacherFullNameInput').value.trim();
+      const nip = document.getElementById('teacherNipInput').value.trim();
+      try {
+        const res = await api.updateProfile(fullName, nip);
+        currentUser.full_name = res.user.full_name;
+        currentUser.nisn_nip = res.user.nisn_nip;
+        updateUserUI();
+        closeModal('editTeacherProfileModal');
+        showToast(res.message, 'success');
+        if (typeof loadSubjects === 'function') await loadSubjects();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  }
+
   // 3. Navigation tabs
   document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -710,7 +731,6 @@ function showAppScreen() {
 async function onUserAuthenticated() {
   updateUserUI();
   await loadEmergencyStatus();
-  await loadDemoAccounts();
   await refreshCurrentView();
 }
 
@@ -774,12 +794,17 @@ function updateUserUI() {
     if (navStudentsTab) navStudentsTab.classList.add('hidden');
     const navGoogleSyncTab = document.getElementById('navGoogleSyncTab');
     if (navGoogleSyncTab) navGoogleSyncTab.classList.add('hidden');
+    const editProfBtn = document.getElementById('editProfileBtn');
+    if (editProfBtn) editProfBtn.classList.add('hidden');
     const mobileNavGoogleSyncTab = document.getElementById('mobileNavGoogleSyncTab');
     if (mobileNavGoogleSyncTab) mobileNavGoogleSyncTab.classList.add('hidden');
     const dashGSCard = document.getElementById('dashGoogleSyncCard');
     if (dashGSCard) dashGSCard.classList.add('hidden');
   } else {
     // Teacher
+    const editProfBtn = document.getElementById('editProfileBtn');
+    if (editProfBtn) editProfBtn.classList.remove('hidden');
+
     navBadge.textContent = 'GURU MAPEL';
     navBadge.className = 'bg-indigo-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm';
     roleBadge.innerHTML = `<span class="bg-indigo-100 text-indigo-800 px-1.5 py-0.2 rounded font-bold uppercase text-[10px]">GURU (14 KELAS)</span>`;
@@ -876,8 +901,8 @@ async function loadClassDirectory() {
       <div class="flex items-center gap-2">
         <span class="text-xl">👨‍🏫</span>
         <div>
-          <div class="font-bold text-xs text-indigo-950">Akun Guru (Bpk. H. Rahmat Hidayat)</div>
-          <div class="text-[10px] text-indigo-700 font-mono">Username: guru_infor / Password: guru123</div>
+          <div class="font-bold text-xs text-indigo-950">Akun Guru (Aldo Sapriansyah, S.Kom., Gr.)</div>
+          <div class="text-[10px] text-indigo-700 font-mono">NIY: NIY.Y223188 • guru_infor</div>
         </div>
       </div>
       <span class="text-xs font-bold text-indigo-600">Pilih &rarr;</span>
@@ -915,44 +940,7 @@ async function loadEmergencyStatus() {
   }
 }
 
-// Demo Accounts Switcher (Navbar)
-async function loadDemoAccounts() {
-  try {
-    const res = await api.getDemoAccounts();
-    const listContainer = document.getElementById('demoAccountsList');
-    listContainer.innerHTML = '';
-
-    res.users.forEach(user => {
-      const btn = document.createElement('button');
-      btn.className = 'w-full px-3 py-2 text-left hover:bg-indigo-50 flex items-center space-x-2.5 transition text-xs';
-      btn.innerHTML = `
-        <span class="text-base">${user.avatar || '👤'}</span>
-        <div class="flex-1 min-w-0">
-          <div class="font-bold text-slate-800 truncate">${user.full_name}</div>
-          <div class="text-[10px] text-slate-500">${user.class_name} • ${user.role.toUpperCase()}</div>
-        </div>
-        ${currentUser && currentUser.id === user.id ? '<i class="fas fa-check text-indigo-600 text-xs"></i>' : ''}
-      `;
-
-      btn.addEventListener('click', async () => {
-        try {
-          const switchRes = await api.quickLogin(user.username);
-          currentUser = switchRes.user;
-          updateUserUI();
-          showToast(`Beralih ke ${user.full_name} (${user.class_name})`, 'info');
-          await loadDemoAccounts();
-          await refreshCurrentView();
-        } catch (e) {
-          showToast(e.message, 'error');
-        }
-      });
-
-      listContainer.appendChild(btn);
-    });
-  } catch (err) {
-    console.error('Failed to load demo accounts:', err);
-  }
-}
+// Account switcher removed for student privacy and security
 
 // Tab Navigation
 function navigateTo(tabId) {
@@ -1158,7 +1146,7 @@ async function loadSubjectsView() {
       </div>
       <p class="text-xs text-slate-600 mt-3 leading-relaxed">${s.description || ''}</p>
       <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-        <span><i class="fas fa-chalkboard-teacher mr-1 text-slate-400"></i> ${s.teacher_name || 'Bpk. Rahmat'}</span>
+        <span><i class="fas fa-chalkboard-teacher mr-1 text-slate-400"></i> ${s.teacher_name || 'Guru Pengampu'}</span>
         <span class="text-indigo-600 font-bold hover:underline">Buka Silabus &rarr;</span>
       </div>
     `;
@@ -1852,6 +1840,15 @@ function openChangePasswordModal() {
     sub.textContent = `Akun: ${currentUser.full_name} (${currentUser.class_name})`;
   }
   openModal('changePasswordModal');
+}
+
+function openEditTeacherProfileModal() {
+  if (!currentUser) return;
+  const nameInput = document.getElementById('teacherFullNameInput');
+  const nipInput = document.getElementById('teacherNipInput');
+  if (nameInput) nameInput.value = currentUser.full_name || '';
+  if (nipInput) nipInput.value = (currentUser.nisn_nip && currentUser.nisn_nip !== 'GURU') ? currentUser.nisn_nip : '';
+  openModal('editTeacherProfileModal');
 }
 
 // Toast Notifications
