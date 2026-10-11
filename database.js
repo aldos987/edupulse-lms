@@ -206,9 +206,9 @@ function seedInitialData() {
   const teacher = insertUser.run(
     'guru_infor',
     teacherHash,
-    'Bpk. H. Rahmat Hidayat, S.Kom., M.T.',
+    'Aldo Sapriansyah, S.Kom., Gr.',
     'guru',
-    '198504122010011008',
+   'NIY.Y223188',
     'GURU',
     'Guru Mapel Informatika, KKA & Mulok',
     0,
