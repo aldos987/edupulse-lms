@@ -1,0 +1,7 @@
+node_modules/
+cloudflared.exe
+tunnel.log
+public-url.txt
+uploads/*
+!uploads/.gitkeep
+.env
