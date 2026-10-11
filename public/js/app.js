@@ -710,7 +710,6 @@ function showAppScreen() {
 async function onUserAuthenticated() {
   updateUserUI();
   await loadEmergencyStatus();
-  await loadDemoAccounts();
   await refreshCurrentView();
 }
 
@@ -915,44 +914,7 @@ async function loadEmergencyStatus() {
   }
 }
 
-// Demo Accounts Switcher (Navbar)
-async function loadDemoAccounts() {
-  try {
-    const res = await api.getDemoAccounts();
-    const listContainer = document.getElementById('demoAccountsList');
-    listContainer.innerHTML = '';
-
-    res.users.forEach(user => {
-      const btn = document.createElement('button');
-      btn.className = 'w-full px-3 py-2 text-left hover:bg-indigo-50 flex items-center space-x-2.5 transition text-xs';
-      btn.innerHTML = `
-        <span class="text-base">${user.avatar || '👤'}</span>
-        <div class="flex-1 min-w-0">
-          <div class="font-bold text-slate-800 truncate">${user.full_name}</div>
-          <div class="text-[10px] text-slate-500">${user.class_name} • ${user.role.toUpperCase()}</div>
-        </div>
-        ${currentUser && currentUser.id === user.id ? '<i class="fas fa-check text-indigo-600 text-xs"></i>' : ''}
-      `;
-
-      btn.addEventListener('click', async () => {
-        try {
-          const switchRes = await api.quickLogin(user.username);
-          currentUser = switchRes.user;
-          updateUserUI();
-          showToast(`Beralih ke ${user.full_name} (${user.class_name})`, 'info');
-          await loadDemoAccounts();
-          await refreshCurrentView();
-        } catch (e) {
-          showToast(e.message, 'error');
-        }
-      });
-
-      listContainer.appendChild(btn);
-    });
-  } catch (err) {
-    console.error('Failed to load demo accounts:', err);
-  }
-}
+// Account switcher removed for student privacy and security
 
 // Tab Navigation
 function navigateTo(tabId) {
