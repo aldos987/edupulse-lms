@@ -503,8 +503,21 @@ function setupEventListeners() {
       const studentData = [];
       lines.forEach(line => {
         // Expected format: NISN, Nama, Kelas
-        const parts = line.split(',').map(p => p.trim());
+        // Support Tab (\t) from Excel/Google Sheets copy-paste, Comma (,), or Semicolon (;)
+        let parts = line.split('\t').map(p => p.trim());
+        if (parts.length < 3) {
+          parts = line.split(',').map(p => p.trim());
+        }
+        if (parts.length < 3) {
+          parts = line.split(';').map(p => p.trim());
+        }
         if (parts.length >= 3) {
+          // Ignore header line if teacher accidentally copies the table title/header
+          const firstCol = parts[0].toLowerCase();
+          const secondCol = parts[1].toLowerCase();
+          if (firstCol === 'nisn' || firstCol === 'no' || secondCol === 'nama' || secondCol.includes('nama lengkap')) {
+            return;
+          }
           studentData.push({
             nisn: parts[0],
             full_name: parts[1],
@@ -514,7 +527,7 @@ function setupEventListeners() {
       });
 
       if (studentData.length === 0) {
-        showToast('Format teks salah. Pastikan format: NISN, Nama Lengkap, Ruang Kelas', 'error');
+        showToast('Format teks belum sesuai. Pastikan ada 3 data: NISN, Nama Lengkap, dan Ruang Kelas (misal: 0081010001, Budi, X.1).', 'error');
         return;
       }
 
@@ -1833,6 +1846,20 @@ function closeModal(modalId) {
   const el = document.getElementById(modalId);
   if (el) el.classList.add('hidden');
 }
+
+// Global Direct Modal Openers
+window.openBatchModalDirect = function() {
+  const el = document.getElementById('batchStudentModal');
+  if (el) el.classList.remove('hidden');
+};
+
+window.openAddStudentModalDirect = function() {
+  if (typeof setupGradeAndClassDropdowns === 'function') {
+    setupGradeAndClassDropdowns('newStudentGrade', 'newStudentClass');
+  }
+  const el = document.getElementById('addStudentModal');
+  if (el) el.classList.remove('hidden');
+};
 
 function openChangePasswordModal() {
   const sub = document.getElementById('changePasswordSub');
